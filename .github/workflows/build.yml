@@ -11,10 +11,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust nightly
+      - name: Install Rust nightly (older)
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
+          toolchain: nightly-2023-08-15
           targets: aarch64-unknown-linux-gnu
 
       - name: Install dependencies
@@ -23,8 +23,11 @@ jobs:
       - name: Build for aarch64
         run: cargo build --release --target aarch64-unknown-linux-gnu
 
+      - name: Rename binary
+        run: mv target/aarch64-unknown-linux-gnu/release/luac-parser target/aarch64-unknown-linux-gnu/release/luac
+
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
           name: luac-aarch64
-          path: target/aarch64-unknown-linux-gnu/release/luac-parser
+          path: target/aarch64-unknown-linux-gnu/release/luac
