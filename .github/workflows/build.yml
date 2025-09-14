@@ -28,11 +28,19 @@ jobs:
       - name: Build for aarch64
         run: cargo build --release --target aarch64-unknown-linux-gnu
 
-      - name: List built files
-        run: ls -la target/aarch64-unknown-linux-gnu/release/
+      - name: List all built files to find the correct binary name
+        run: |
+          echo "=== Contents of release directory ==="
+          ls -la target/aarch64-unknown-linux-gnu/release/
+          echo "=== Executable files only ==="
+          find target/aarch64-unknown-linux-gnu/release/ -type f -executable
+          echo "=== All files without extension ==="
+          find target/aarch64-unknown-linux-gnu/release/ -type f ! -name "*.*"
 
-      - name: Rename binary
-        run: mv target/aarch64-unknown-linux-gnu/release/openwrt-luac-parser target/aarch64-unknown-linux-gnu/release/luac
+      - name: Rename binary (update this after seeing the output above)
+        run: |
+          echo "Please check the output above and update this step with the correct filename"
+          # mv target/aarch64-unknown-linux-gnu/release/CORRECT_NAME_HERE target/aarch64-unknown-linux-gnu/release/luac
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
