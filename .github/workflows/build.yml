@@ -1,4 +1,4 @@
-name: Build luac-parser
+name: Build luac-parser for Termux
 
 on:
   workflow_dispatch:
@@ -11,28 +11,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust nightly (compatible)
+      - name: Install Rust nightly
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: nightly-2024-12-01
-          targets: aarch64-unknown-linux-gnu
+          targets: aarch64-linux-android
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
-
-      - name: Configure cross-compilation
+      - name: Install Android NDK
         run: |
-          echo '[target.aarch64-unknown-linux-gnu]' > ~/.cargo/config.toml
-          echo 'linker = "aarch64-linux-gnu-gcc"' >> ~/.cargo/config.toml
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
+          unzip android-ndk-r26b-linux.zip
+          export ANDROID_NDK_HOME=$PWD/android-ndk-r26b
 
-      - name: Build for aarch64
-        run: cargo build --release --target aarch64-unknown-linux-gnu
+      - name: Configure Cargo for Android
+        run: |
+          mkdir -p ~/.cargo
+          echo '[target.aarch64-linux-android]' > ~/.cargo/config.toml
+          echo "ar = \"$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar\"" >> ~/.cargo/config.toml
+          echo "linker = \"$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang\"" >> ~/.cargo/config.toml
 
-      - name: Rename library to luac
-        run: mv target/aarch64-unknown-linux-gnu/release/libopenwrt_luac_parser.so target/aarch64-unknown-linux-gnu/release/luac
+      - name: Build for Termux (Android ARM64)
+        run: cargo build --release --target aarch64-linux-android
 
-      - name: Upload binary
+      - name: Rename output to luac
+        run: mv target/aarch64-linux-android/release/openwrt_luac_parser target/aarch64-linux-android/release/luac
+
+      - name: Upload Termux-compatible binary
         uses: actions/upload-artifact@v4
         with:
-          name: luac-aarch64
-          path: target/aarch64-unknown-linux-gnu/release/luac
+          name: luac-android
+          path: target/aarch64-linux-android/release/luac
