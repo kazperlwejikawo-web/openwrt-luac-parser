@@ -28,8 +28,11 @@ jobs:
       - name: Build for aarch64
         run: cargo build --release --target aarch64-unknown-linux-gnu
 
+      - name: List built files
+        run: ls -la target/aarch64-unknown-linux-gnu/release/
+
       - name: Rename binary
-        run: mv target/aarch64-unknown-linux-gnu/release/luac-parser target/aarch64-unknown-linux-gnu/release/luac
+        run: mv target/aarch64-unknown-linux-gnu/release/openwrt-luac-parser target/aarch64-unknown-linux-gnu/release/luac
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
