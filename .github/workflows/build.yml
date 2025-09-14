@@ -1,0 +1,26 @@
+name: Build luac-parser
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install Rust (nightly)
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Add wasm target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Build
+        run: cargo build --release --target wasm32-unknown-unknown
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: luac-parser
+          path: target/wasm32-unknown-unknown/release/
